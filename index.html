@@ -1,0 +1,1225 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CCBRT Hospital BMS</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+      --line: #d9e0ea;
+      --text: #0f172a;
+      --muted: #5f6b7f;
+      --green: #16a34a;
+      --blue: #2563eb;
+      --warn: #d97706;
+      --danger: #dc2626;
+      --sidebar: 260px;
+      --topbar: 74px;
+      --r: 14px;
+      --shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font-family: "Segoe UI", "Inter", system-ui, sans-serif; overflow: hidden; }
+    body { display: grid; grid-template-columns: var(--sidebar) 1fr; }
+
+    .sidebar { background: #fff; border-right: 1px solid var(--line); display: flex; flex-direction: column; justify-content: space-between; }
+    .brand { display: flex; align-items: center; gap: 12px; padding: 18px 14px; border-bottom: 1px solid var(--line); }
+    .logo { width: 48px; height: 48px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(152, 185, 235, 0.35); background: #0b1f43; display: grid; place-items: center; }
+    .logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .brand h1 { margin: 0; font-size: 28px; line-height: 1; }
+    .brand p { margin: 3px 0 0; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+
+    .nav { padding: 12px 10px; display: grid; gap: 6px; }
+    .nav a { display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: var(--text); border-radius: 10px; padding: 11px; border: 1px solid transparent; font-weight: 700; transition: .2s; }
+    .nav a:hover { background: #f3f6fb; border-color: #e5ecf5; }
+    .nav a.active { background: #eaf1ff; border-color: #cddfff; }
+    .nav-left { display: inline-flex; align-items: center; gap: 10px; }
+    .nav i { color: var(--green); font-size: 17px; width: 18px; text-align: center; }
+
+    .badge { min-width: 22px; text-align: center; border-radius: 999px; background: #ef4444; color: #fff; font-size: 11px; font-weight: 800; padding: 2px 7px; }
+    .profile { margin: 12px; border: 1px solid var(--line); border-radius: 12px; padding: 10px; display: flex; gap: 10px; align-items: center; background: #fff; }
+    .avatar { width: 38px; height: 38px; border-radius: 50%; background: #e8f0ff; color: #1e40af; display: grid; place-items: center; font-weight: 800; }
+    .profile small { color: var(--muted); }
+
+    .app { display: grid; grid-template-rows: var(--topbar) 1fr; min-height: 100vh; }
+    .topbar { background: #fff; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 16px; }
+    .title-wrap { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .title { margin: 0; font-size: 30px; line-height: 1; }
+    .pill { border: 1px solid #bbf7d0; background: #f0fdf4; color: #15803d; border-radius: 999px; padding: 5px 12px; font-size: 11px; font-weight: 800; text-transform: uppercase; }
+    .tm { display: flex; gap: 14px; color: var(--muted); flex-wrap: wrap; font-weight: 600; justify-content: flex-end; }
+    .live { color: var(--text); font-weight: 800; font-variant-numeric: tabular-nums; }
+
+    .content { overflow: auto; padding: 14px; display: grid; gap: 12px; background: linear-gradient(#f9fbff, #f3f7ff); }
+    .view { display: none; gap: 12px; }
+    .view.active { display: grid; }
+
+    .kpis { display: grid; grid-template-columns: repeat(4, minmax(180px, 1fr)); gap: 10px; }
+    .kpi { border: 1px solid #dbe5f2; background: #fff; border-radius: var(--r); padding: 12px; box-shadow: var(--shadow); }
+    .kpi h3 { margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: .6px; color: #4c5d7c; }
+    .v { margin-top: 8px; font-size: 40px; font-weight: 800; line-height: 1; }
+    .s { margin-top: 5px; color: var(--muted); font-size: 13px; }
+
+    .g2 { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; }
+    .g3 { display: grid; grid-template-columns: repeat(3, minmax(220px, 1fr)); gap: 10px; }
+    .panel, .card { border: 1px solid #dbe5f2; border-radius: var(--r); background: #fff; padding: 12px; box-shadow: var(--shadow); }
+    .panel h2, .card h2 { margin: 0; font-size: 22px; }
+    .meta { margin-top: 4px; color: var(--muted); font-size: 13px; }
+
+    .floor { margin-top: 10px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+    .zone { border: 1px solid #c8d9ef; border-radius: 10px; min-height: 64px; display: grid; place-items: center; text-align: center; background: #f8fbff; font-weight: 700; color: #1f2f4f; cursor: pointer; padding: 5px; }
+    .zone.ok { border-color: #9ae6b4; background: #f0fdf4; }
+    .zone.warn { border-color: #fcd34d; background: #fffbeb; }
+    .zone.bad { border-color: #fda4af; background: #fff1f2; }
+
+    .list { margin: 10px 0 0; padding: 0; list-style: none; display: grid; gap: 7px; }
+    .list li { display: flex; justify-content: space-between; align-items: center; gap: 8px; border: 1px solid #dce6f3; border-radius: 10px; background: #f9fbff; padding: 9px; font-size: 14px; }
+
+    .state { border-radius: 999px; padding: 4px 8px; font-size: 11px; font-weight: 800; text-transform: uppercase; white-space: nowrap; }
+    .ok { background: #dcfce7; color: #166534; }
+    .warn { background: #fef3c7; color: #92400e; }
+    .bad { background: #fee2e2; color: #991b1b; }
+
+    .banner { border: 1px solid #fecaca; border-left: 4px solid var(--danger); border-radius: 12px; background: #fff; padding: 12px; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; box-shadow: var(--shadow); }
+    .banner h3 { margin: 0; font-size: 30px; }
+    .banner p { margin: 2px 0 0; color: var(--muted); }
+
+    .btn { border: 0; border-radius: 9px; padding: 9px 12px; font-weight: 800; color: #fff; background: #334155; cursor: pointer; }
+    .danger { background: #ef4444; }
+
+    .mr { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; color: #475569; font-size: 14px; }
+    .mr strong { color: var(--text); font-size: 25px; }
+    .progress { height: 8px; border: 1px solid #d8e4f3; border-radius: 999px; overflow: hidden; background: #f3f7fd; }
+    .progress span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #2563eb, #16a34a); }
+
+    .table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+    .table th, .table td { text-align: left; padding: 9px; border-bottom: 1px solid #e1e9f4; }
+    .table th { font-size: 12px; color: #475569; text-transform: uppercase; }
+
+    .camera { height: 230px; border: 1px solid #d2e1f3; border-radius: 12px; background: linear-gradient(rgba(100,122,160,.12) 1px, transparent 1px), linear-gradient(90deg, rgba(100,122,160,.12) 1px, transparent 1px), #f6faff; background-size: 28px 28px, 28px 28px, cover; position: relative; overflow: hidden; }
+    .camera::before { content: "LIVE FEED • ZONE S-04"; position: absolute; left: 10px; top: 10px; font-size: 11px; border: 1px solid #cfe0f4; border-radius: 6px; padding: 4px 7px; background: #fff; }
+    .camera::after { content: "REC"; position: absolute; right: 10px; top: 10px; font-size: 11px; font-weight: 800; color: #991b1b; border: 1px solid #fca5a5; border-radius: 999px; padding: 4px 7px; background: #fff1f2; }
+    .scan { position: absolute; left: 0; right: 0; top: -8px; height: 2px; background: linear-gradient(90deg, transparent, #16a34a, transparent); animation: scan 4.5s linear infinite; }
+    @keyframes scan { 0% { top: -8px; } 100% { top: 106%; } }
+
+    .chips { margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip { border: 1px solid #cde0f5; border-radius: 999px; padding: 6px 10px; font-size: 12px; color: #1e3a8a; background: #eff6ff; cursor: pointer; }
+    .chip.active { background: #16a34a; color: #fff; border-color: #16a34a; }
+
+    .bars { margin-top: 8px; height: 240px; border: 1px solid #d5e4f5; border-radius: 12px; padding: 10px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; align-items: end; background: #f8fbff; }
+    .bar { border-radius: 8px 8px 0 0; min-height: 14px; position: relative; }
+    .bar span { position: absolute; left: 50%; transform: translateX(-50%); bottom: -22px; font-size: 11px; color: #64748b; white-space: nowrap; }
+    .metric-icon { color: #7ca3dd; margin-right: 6px; }
+    .control-grid { display: grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); gap: 12px; margin-top: 10px; }
+    .control-box { border: 1px solid #1f3f77; border-radius: 12px; background: rgba(9, 23, 48, 0.75); padding: 10px; }
+    .control-box h4 { margin: 0 0 8px; font-size: 14px; color: #d6e4ff; text-transform: uppercase; letter-spacing: 0.5px; }
+    .field { display: grid; gap: 4px; margin-bottom: 8px; font-size: 12px; color: #9bb1d6; }
+    .field input[type="range"], .field input[type="number"], .field select { width: 100%; }
+    .field input[type="number"], .field select {
+      background: #0f2448;
+      color: #e6efff;
+      border: 1px solid #2a4f84;
+      border-radius: 8px;
+      padding: 6px 8px;
+    }
+    .checks { display: grid; gap: 6px; font-size: 13px; color: #cfe0f6; }
+    .checks label { display: flex; align-items: center; gap: 8px; }
+    .chips-inline { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .chip-mini { border: 1px solid #2a4f84; background: #0e2752; color: #c6d8fb; border-radius: 999px; padding: 5px 10px; font-size: 11px; }
+    .spend-big { font-size: 36px; font-weight: 900; line-height: 1.1; }
+    .delta { font-size: 13px; color: #8ea8d1; }
+    .report-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .report-actions .btn { padding: 8px 10px; font-size: 12px; }
+    .layout-map { margin-top: 10px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .layout-node { border: 1px solid #2a4f84; border-radius: 8px; background: #0b1e3f; padding: 8px; font-size: 12px; color: #d6e4ff; }
+    .layout-node.ok { border-color: #1e7350; background: #102b20; color: #8ef5bf; }
+    .layout-node.warn { border-color: #966223; background: #311f10; color: #ffd195; }
+    .layout-node.bad { border-color: #a5353e; background: #33141b; color: #ffadb4; }
+    .flow-grid { margin-top: 10px; display: grid; grid-template-columns: 1.1fr 1fr; gap: 12px; }
+    .flow-diagram {
+      border: 1px solid #1f3f77;
+      border-radius: 12px;
+      background: rgba(9, 23, 48, 0.72);
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      align-items: stretch;
+    }
+    .flow-stage {
+      border: 1px solid #2a4f84;
+      border-radius: 10px;
+      background: #0a1f40;
+      padding: 8px;
+    }
+    .flow-stage h4 { margin: 0 0 8px; font-size: 12px; letter-spacing: .4px; text-transform: uppercase; color: #9bb1d6; }
+    .flow-item { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; padding: 4px 0; color: #d6e4ff; }
+    .flow-item strong { color: #f2f6ff; }
+    .flow-item.active { color: #8ef5bf; }
+    .source-mode {
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      border: 1px solid #2a4f84;
+      background: #0e2752;
+      border-radius: 8px;
+      padding: 6px 8px;
+      font-size: 12px;
+      color: #cfe0f6;
+    }
+    .source-badge { border-radius: 999px; padding: 3px 8px; font-weight: 800; font-size: 11px; }
+    .source-badge.grid { background: rgba(34, 197, 94, 0.2); color: #86efac; }
+    .source-badge.gen { background: rgba(249, 115, 22, 0.2); color: #fdba74; }
+    .trend-wrap {
+      border: 1px solid #1f3f77;
+      border-radius: 12px;
+      background: rgba(9, 23, 48, 0.72);
+      padding: 12px;
+    }
+    .trend-wrap h4 { margin: 0 0 8px; font-size: 13px; color: #d6e4ff; }
+    .trend-info { margin-top: 8px; color: #9bb1d6; font-size: 12px; display: flex; justify-content: space-between; gap: 8px; }
+    #energyTrendSvg { width: 100%; height: 180px; border: 1px solid #23457e; border-radius: 10px; background: #081a36; }
+    #energyTrendSvg .grid { stroke: rgba(120, 148, 194, 0.25); stroke-width: 1; }
+    #energyTrendSvg .line { fill: none; stroke: #22d3ee; stroke-width: 2.5; }
+    #energyTrendSvg .area { fill: rgba(34, 211, 238, 0.18); }
+    #energyTrendSvg .dot { fill: #22d3ee; cursor: pointer; }
+
+    .toast { position: fixed; right: 16px; bottom: 16px; border: 1px solid #cfe0f4; border-radius: 12px; background: #fff; color: #0f172a; padding: 10px 12px; box-shadow: var(--shadow); opacity: 0; transform: translateY(16px); transition: .2s; pointer-events: none; max-width: 340px; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    .security-view {
+      background:
+        linear-gradient(rgba(29, 53, 94, 0.22) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(29, 53, 94, 0.22) 1px, transparent 1px),
+        #030b1f;
+      background-size: 36px 36px, 36px 36px, cover;
+      border: 1px solid #16325b;
+      border-radius: 16px;
+      padding: 14px;
+    }
+    .security-grid { display: grid; grid-template-columns: 2.1fr 1fr; gap: 12px; }
+    .surv-card, .registry-card, .sec-box { border: 1px solid #1c3a68; border-radius: 16px; background: linear-gradient(180deg, #07162f, #040f23 70%); color: #e3edff; box-shadow: 0 12px 28px rgba(2, 8, 24, 0.45); }
+    .surv-head, .registry-head { padding: 12px 14px; border-bottom: 1px solid #17335c; display: flex; align-items: center; justify-content: space-between; gap: 8px; font-weight: 800; }
+    .feed-main { margin: 12px; border: 1px solid #1e3f73; border-radius: 0; min-height: 360px; position: relative; background: linear-gradient(rgba(48, 80, 124, 0.14) 1px, transparent 1px), linear-gradient(90deg, rgba(48, 80, 124, 0.14) 1px, transparent 1px), #020a1b; background-size: 36px 36px, 36px 36px, cover; overflow: hidden; }
+    .feed-tag { position: absolute; left: 14px; top: 12px; border: 1px solid #2b4f83; border-radius: 8px; padding: 8px 10px; background: rgba(0, 0, 0, 0.42); font-size: 11px; letter-spacing: 0.6px; line-height: 1.35; }
+    .feed-pill { position: absolute; right: 14px; top: 12px; border: 1px solid #a52f3d; background: rgba(148, 22, 38, 0.45); color: #ffc9d0; border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 800; }
+    .stamp { position: absolute; right: 36px; bottom: 34px; border: 1px solid #2b4f83; background: rgba(0, 0, 0, 0.42); padding: 9px 14px; font-family: Consolas, monospace; font-weight: 700; color: #eaf2ff; }
+    .coord { position: absolute; left: 32px; bottom: 34px; border: 1px solid #2b4f83; background: rgba(0, 0, 0, 0.42); padding: 9px 10px; font-family: Consolas, monospace; font-size: 11px; color: #dbe9ff; }
+    .feed-main-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.86;
+      transition: opacity 0.25s ease;
+    }
+    .feed-main-img.switching { opacity: 0.25; }
+    .feed-main::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(2, 8, 24, 0.3), rgba(2, 8, 24, 0.22));
+      pointer-events: none;
+    }
+    .feed-tag, .feed-pill, .coord, .stamp { z-index: 2; }
+    .feed-strip { margin: 0 12px 12px; border: 1px solid #1c3a68; border-radius: 0; overflow: hidden; display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; background: #1c3a68; }
+    .thumb { min-height: 96px; background: #0a1834; color: #91acd8; border: 0; border-radius: 0; text-align: left; padding: 0; font-size: 11px; font-weight: 700; cursor: pointer; position: relative; overflow: hidden; }
+    .thumb img { width: 100%; height: 100%; object-fit: cover; opacity: 0.9; display: block; }
+    .thumb .lbl {
+      position: absolute;
+      left: 6px;
+      right: 6px;
+      bottom: 6px;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(138, 164, 203, 0.45);
+      border-radius: 5px;
+      color: #e1ecff;
+      padding: 2px 4px;
+      font-size: 10px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .thumb.active { outline: 2px solid #3b82f6; outline-offset: -2px; }
+    .registry-list { margin: 0; padding: 10px 16px 14px 24px; list-style: none; display: grid; gap: 14px; }
+    .registry-list li { position: relative; border-left: 1px solid #28466f; padding-left: 14px; color: #d6e4ff; }
+    .registry-list li::before { content: ""; width: 8px; height: 8px; border-radius: 999px; background: #6b87b4; position: absolute; left: -5px; top: 6px; }
+    .registry-list li.alert::before { background: #ef4444; }
+    .registry-list .time { color: #7f99c3; font-size: 12px; }
+    .registry-list .name { font-size: 16px; font-weight: 800; margin-top: 2px; }
+    .registry-list .desc { color: #93abd0; font-size: 12px; text-transform: uppercase; }
+    .registry-list li.alert .name { color: #ff8c96; }
+    .registry-list li.alert .desc { color: #ff7d88; }
+    .security-bottom { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr 0.8fr; gap: 12px; }
+    .sec-box { padding: 16px; }
+    .sec-kicker { text-transform: uppercase; letter-spacing: 1px; font-weight: 800; font-size: 12px; }
+    .sec-kicker.orange { color: #fb923c; }
+    .sec-kicker.blue { color: #60a5fa; }
+    .sec-title { margin: 16px 0 4px; font-size: 36px; font-weight: 900; }
+    .sec-sub { color: #8ea8d1; }
+    .lock-pill { background: #f97316; color: #fff; border-radius: 14px; padding: 8px 16px; font-weight: 800; font-size: 14px; }
+    .finger { width: 42px; height: 42px; border-radius: 50%; border: 2px solid #60a5fa; display: grid; place-items: center; color: #93c5fd; font-size: 20px; }
+    .mini-bars { margin-top: 18px; height: 82px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; align-items: end; }
+    .mini-bars span { background: #2f4f89; border-radius: 4px 4px 0 0; display: block; }
+
+    body.security-mode { background: #030b1f; color: #e6efff; }
+    body.security-mode .sidebar { background: linear-gradient(180deg, #07152f, #040d20 70%); border-right-color: #17335c; }
+    body.security-mode .brand { border-bottom-color: #17335c; }
+    body.security-mode .brand h1 { color: #f5f8ff; }
+    body.security-mode .brand p { color: #7f99c3; }
+    body.security-mode .logo { background: #2563eb; color: #fff; }
+    body.security-mode .profile { background: rgba(8, 21, 45, 0.75); border-color: #1a3969; color: #e6efff; }
+    body.security-mode .avatar { background: #1f3b72; color: #d8e6ff; }
+    body.security-mode .profile small { color: #8ea8d1; }
+    body.security-mode .nav a { color: #9bb1d6; }
+    body.security-mode .nav a:hover { background: rgba(37, 99, 235, 0.14); border-color: #24467c; }
+    body.security-mode .nav a.active { background: rgba(41, 83, 161, 0.44); border-color: #3567b1; color: #fff; }
+    body.security-mode .nav i { color: #cad7ef; }
+    body.security-mode .nav a.active i { color: #fff; }
+    body.security-mode .topbar { background: rgba(6, 17, 38, 0.98); border-bottom-color: #17335c; }
+    body.security-mode .title { color: #f2f6ff; }
+    body.security-mode .tm { color: #8ea8d1; }
+    body.security-mode .live { color: #f5f9ff; }
+    body.security-mode .pill { background: rgba(34, 197, 94, 0.15); border-color: rgba(34, 197, 94, 0.35); color: #86efac; }
+    body.security-mode .content { background: linear-gradient(rgba(22, 46, 84, 0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(22, 46, 84, 0.35) 1px, transparent 1px), #030b1f; background-size: 34px 34px, 34px 34px, cover; }
+    body.security-mode .kpi,
+    body.security-mode .panel,
+    body.security-mode .card,
+    body.security-mode .banner,
+    body.security-mode .sec-box,
+    body.security-mode .surv-card,
+    body.security-mode .registry-card {
+      background: linear-gradient(180deg, #07162f, #040f23 70%);
+      border-color: #1c3a68;
+      color: #e3edff;
+      box-shadow: 0 12px 28px rgba(2, 8, 24, 0.45);
+    }
+    body.security-mode .kpi h3,
+    body.security-mode .meta,
+    body.security-mode .s { color: #8ea8d1; }
+    body.security-mode .v,
+    body.security-mode .mr strong,
+    body.security-mode .panel h2,
+    body.security-mode .card h2 { color: #f2f6ff; }
+    body.security-mode .mr { color: #9bb1d6; }
+    body.security-mode .list li {
+      background: rgba(9, 23, 48, 0.9);
+      border-color: #1c3a68;
+      color: #d6e4ff;
+    }
+    body.security-mode .table th,
+    body.security-mode .table td {
+      color: #d6e4ff;
+      border-bottom-color: #1c3a68;
+    }
+    body.security-mode .table th { color: #8ea8d1; }
+    body.security-mode .zone {
+      background: #0a1a37;
+      border-color: #275193;
+      color: #bdd5ff;
+    }
+    body.security-mode .zone.ok { border-color: #1e7350; background: #102b20; color: #8ef5bf; }
+    body.security-mode .zone.warn { border-color: #966223; background: #311f10; color: #ffd195; }
+    body.security-mode .zone.bad { border-color: #a5353e; background: #33141b; color: #ffadb4; }
+    body.security-mode .progress { background: #0f2448; border-color: #23457e; }
+    body.security-mode .btn { background: #334155; color: #edf4ff; }
+    body.security-mode .danger { background: #ef4444; color: #fff; }
+    body.security-mode .bars { background: #07162f; border-color: #1c3a68; }
+    body.security-mode .chip { background: #10274f; border-color: #2a4f84; color: #c6d8fb; }
+    body.security-mode .chip.active { background: #16a34a; border-color: #16a34a; color: #fff; }
+    body.security-mode .toast {
+      background: #07162f;
+      border-color: #1c3a68;
+      color: #e6efff;
+    }
+
+    @media (max-width: 1200px) {
+      :root { --sidebar: 220px; }
+      .kpis { grid-template-columns: repeat(2, minmax(160px, 1fr)); }
+      .g2, .g3 { grid-template-columns: 1fr; }
+      .title { font-size: 24px; }
+      .security-grid, .security-bottom { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 900px) {
+      body { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+      .sidebar { border-right: 0; border-bottom: 1px solid var(--line); }
+      .nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .profile { display: none; }
+      .title { font-size: 21px; }
+      .floor { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+  <body class="security-mode">
+  <aside class="sidebar">
+    <div>
+      <div class="brand">
+        <div class="logo"><img src="https://i.ibb.co/Kjv0W0SC/download-2.jpg" alt="CCBRT logo" /></div>
+        <div>
+          <h1>CCBRT</h1>
+          <p>Smart Hospital BMS</p>
+        </div>
+      </div>
+      <nav class="nav">
+        <a href="#dashboard" data-view="dashboard" class="active"><span class="nav-left"><i class="bi bi-grid-1x2-fill"></i>Dashboard</span></a>
+        <a href="#critical" data-view="critical"><span class="nav-left"><i class="bi bi-sliders2-vertical"></i>Critical Infrastructure</span></a>
+        <a href="#security" data-view="security"><span class="nav-left"><i class="bi bi-shield-lock"></i>Security & Access</span></a>
+        <a href="#energy" data-view="energy"><span class="nav-left"><i class="bi bi-lightning-charge"></i>Energy Optimization</span></a>
+        <a href="#coverage" data-view="coverage"><span class="nav-left"><i class="bi bi-diagram-3"></i>System Coverage</span></a>
+        <a href="#alerts" data-view="alerts"><span class="nav-left"><i class="bi bi-bell"></i>Active Alerts</span><span class="badge" id="alertBadge">4</span></a>
+      </nav>
+    </div>
+    <div class="profile">
+      <div class="avatar">JD</div>
+      <div>
+        <strong>Facility Manager</strong><br />
+        <small>Shift: 08:00 - 17:00</small>
+      </div>
+    </div>
+  </aside>
+
+  <main class="app">
+    <header class="topbar">
+      <div class="title-wrap">
+        <h2 class="title" id="viewTitle">System Overview</h2>
+        <span class="pill">System Nominal</span>
+      </div>
+      <div class="tm">
+        <span>Power <strong class="live" id="topPower">482.7 kW</strong></span>
+        <span>O2 <strong class="live" id="topO2">14.2 Bar</strong></span>
+        <span>IT Health <strong class="live" id="topIT">99.9%</strong></span>
+        <span id="dateNow"></span>
+        <span class="live" id="clockNow"></span>
+      </div>
+    </header>
+
+    <section class="content">
+      <article class="view active" id="view-dashboard">
+        <div class="kpis">
+          <div class="kpi"><h3><i class="bi bi-lightning-charge metric-icon"></i>Live Load</h3><div class="v" id="kpiLoad">428 kW</div><div class="s">12% below last peak</div></div>
+          <div class="kpi"><h3><i class="bi bi-thermometer-half metric-icon"></i>OR Avg Temp</h3><div class="v" id="kpiTemp">19.2°C</div><div class="s">Within Spec (18-22°C)</div></div>
+          <div class="kpi"><h3><i class="bi bi-fuel-pump metric-icon"></i>Gen Fuel</h3><div class="v" id="kpiFuel">84%</div><div class="s">Diesel backup healthy</div></div>
+          <div class="kpi"><h3><i class="bi bi-lungs metric-icon"></i>O2 Levels</h3><div class="v" id="kpiO2">14.2 Bar</div><div class="s">Main manifold active</div></div>
+        </div>
+
+        <div class="g2">
+          <div class="panel">
+            <h2><i class="bi bi-building" style="color:#16a34a"></i> Maternity & Newborn Wing Floor Plan</h2>
+            <div class="meta">Live map with fabricated hospital telemetry</div>
+            <div class="floor" id="floorGrid">
+              <button class="zone ok" data-zone="OR-1">OR 1<br><small>19.1°C</small></button>
+              <button class="zone ok" data-zone="OR-2">OR 2<br><small>19.4°C</small></button>
+              <button class="zone warn" data-zone="NICU">NICU UNIT<br><small>22.4°C</small></button>
+              <button class="zone ok" data-zone="ICU">ICU<br><small>20.1°C</small></button>
+              <button class="zone bad" data-zone="SERVER-R2">SERVER R2<br><small>Leak alarm</small></button>
+              <button class="zone ok" data-zone="LAB">LAB<br><small>RH 50%</small></button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h2><i class="bi bi-exclamation-triangle" style="color:#dc2626"></i> Critical System Status</h2>
+            <ul class="list">
+              <li><span>Water leakage - Server Room 02</span><span class="state bad">Critical</span></li>
+              <li><span>UPS B-04 battery capacity low</span><span class="state warn">High</span></li>
+              <li><span>CRAC-02 pressure threshold</span><span class="state warn">Watch</span></li>
+              <li><span>Pharmacy door held open 8m</span><span class="state bad">Critical</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="banner">
+          <div>
+            <h3>Critical Alarm Detected</h3>
+            <p id="bannerText">Server Room Water Leakage - Primary rack row 2</p>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn" id="ackBtn">Acknowledge</button>
+            <button class="btn danger" id="dispatchBtn">Dispatch ERT</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="view" id="view-critical">
+        <div class="g3">
+          <div class="card">
+            <h2>Power Systems <span class="state ok">Nominal</span></h2>
+            <div class="mr"><span><i class="bi bi-lightning metric-icon"></i>Generator 1 (Main)</span><strong id="genLoad">68%</strong></div>
+            <div class="progress"><span id="genLoadBar"></span></div>
+            <div class="mr"><span><i class="bi bi-fuel-pump-fill metric-icon"></i>Diesel Fuel Tank</span><strong id="fuelValue">84%</strong></div>
+            <div class="progress"><span id="fuelBar"></span></div>
+            <div class="mr"><span><i class="bi bi-plug metric-icon"></i>LV Panel Demand</span><strong id="lvDemand">142 kW</strong></div>
+            <div class="mr"><span>ATS State</span><strong id="atsState" style="font-size:20px">Mains Active</strong></div>
+          </div>
+
+          <div class="card">
+            <h2>Cooling & HVAC <span class="state warn">Watch</span></h2>
+            <div class="mr"><span><i class="bi bi-fan metric-icon"></i>CRAC Fleet Availability</span><strong id="cracAvail">92%</strong></div>
+            <div class="progress"><span id="cracBar"></span></div>
+            <div class="mr"><span><i class="bi bi-thermometer-snow metric-icon"></i>Chiller Loop Temp</span><strong id="chillerTemp">6.8°C</strong></div>
+            <div class="mr"><span><i class="bi bi-moisture metric-icon"></i>AHU Supply Delta-P</span><strong id="ahuDp">0.12 Pa</strong></div>
+            <div class="mr"><span><i class="bi bi-wind metric-icon"></i>OR Airflow Compliance</span><strong id="orFlow">97%</strong></div>
+          </div>
+
+          <div class="card">
+            <h2>Fire & Safety <span class="state ok">Armed</span></h2>
+            <div class="mr"><span>Panels Online</span><strong>11/11</strong></div>
+            <div class="mr"><span><i class="bi bi-fire metric-icon"></i>Smoke Sensor Health</span><strong id="smokeHealth">99.4%</strong></div>
+            <div class="mr"><span>Suppression Loop</span><strong>Ready</strong></div>
+            <div class="mr"><span>Last Drill Event</span><strong style="font-size:20px">Jan 30</strong></div>
+          </div>
+        </div>
+
+        <div class="g3">
+          <div class="panel">
+            <h2>UPS Runtime Forecast</h2>
+            <table class="table">
+              <thead><tr><th>UPS</th><th>Health</th><th>Runtime</th><th>State</th></tr></thead>
+              <tbody>
+                <tr><td>UPS-A01</td><td>96%</td><td>36 min</td><td><span class="state ok">Normal</span></td></tr>
+                <tr><td>UPS-B04</td><td>71%</td><td>18 min</td><td><span class="state warn">Service</span></td></tr>
+                <tr><td>UPS-C03</td><td>94%</td><td>32 min</td><td><span class="state ok">Normal</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="panel">
+            <h2>Critical Environment</h2>
+            <ul class="list">
+              <li><span><i class="bi bi-thermometer-half metric-icon"></i>Server R2 Temp / RH</span><span>24.8°C / 58%</span></li>
+              <li><span><i class="bi bi-moisture metric-icon"></i>ICU Temp / RH</span><span>20.1°C / 49%</span></li>
+              <li><span>Water leak strips online</span><span class="state bad">1 Alarm</span></li>
+              <li><span>Smoke detector chain</span><span class="state ok">Healthy</span></li>
+            </ul>
+          </div>
+
+          <div class="panel">
+            <h2>Predictive Maintenance</h2>
+            <ul class="list">
+              <li><span>CRAC-02 compressor inspection</span><span class="state warn">12 hrs</span></li>
+              <li><span>UPS-B04 battery replacement</span><span class="state warn">5 days</span></li>
+              <li><span>LV Panel 3 thermography</span><span class="state ok">7 days</span></li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="view security-view" id="view-security">
+        <div class="security-grid">
+          <div class="surv-card">
+            <div class="surv-head">
+              <span><i class="bi bi-shield-lock" style="color:#60a5fa"></i> Security Operations Wall</span>
+              <span style="font-size:12px;color:#8ea8d1">PHASE 2 / HOSPITAL PROTECTION SUITE</span>
+            </div>
+
+            <div class="feed-main">
+              <img
+                id="securityMainImage"
+                class="feed-main-img"
+                src="https://i.ibb.co/5gV9dVw0/unnamed-4.webp"
+                alt="Security camera view"
+              />
+              <div class="feed-tag"><strong id="cameraTagTitle">CAM FEED 01</strong><br />192.168.10.44 | 4K UHD | 60FPS</div>
+              <div class="feed-pill">REC</div>
+              <div class="coord">LAT: -6.823 | LON: 39.268</div>
+              <div class="stamp">2026-02-09 02:50:58</div>
+            </div>
+
+            <div class="feed-strip" id="camChips">
+              <button class="thumb chip active" data-label="CAM FEED 01" data-src="https://i.ibb.co/5gV9dVw0/unnamed-4.webp"><img src="https://i.ibb.co/5gV9dVw0/unnamed-4.webp" alt="Camera thumbnail 1" /><span class="lbl">Feed 01</span></button>
+              <button class="thumb chip" data-label="CAM FEED 02" data-src="https://i.ibb.co/TV4qt0H/unnamed-3.webp"><img src="https://i.ibb.co/TV4qt0H/unnamed-3.webp" alt="Camera thumbnail 2" /><span class="lbl">Feed 02</span></button>
+              <button class="thumb chip" data-label="CAM FEED 03" data-src="https://i.ibb.co/5wjZ87h/unnamed-2.webp"><img src="https://i.ibb.co/5wjZ87h/unnamed-2.webp" alt="Camera thumbnail 3" /><span class="lbl">Feed 03</span></button>
+              <button class="thumb chip" data-label="CAM FEED 04" data-src="https://i.ibb.co/k65DgjNY/unnamed-1.webp"><img src="https://i.ibb.co/k65DgjNY/unnamed-1.webp" alt="Camera thumbnail 4" /><span class="lbl">Feed 04</span></button>
+              <button class="thumb chip" data-label="CAM FEED 05" data-src="https://i.ibb.co/VpVfwcRg/unnamed.webp"><img src="https://i.ibb.co/VpVfwcRg/unnamed.webp" alt="Camera thumbnail 5" /><span class="lbl">Feed 05</span></button>
+              <button class="thumb chip" data-label="CAM FEED 06" data-src="https://i.ibb.co/TD0TC8qc/unnamed-5.webp"><img src="https://i.ibb.co/TD0TC8qc/unnamed-5.webp" alt="Camera thumbnail 6" /><span class="lbl">Feed 06</span></button>
+            </div>
+          </div>
+
+          <aside class="registry-card">
+            <div class="registry-head">
+              <span><i class="bi bi-journal-text" style="color:#60a5fa"></i> Access Registry</span>
+              <span style="font-size:12px;color:#60a5fa;letter-spacing:0.5px">EXPORT</span>
+            </div>
+
+            <ul class="registry-list">
+              <li>
+                <div class="time">04:12:05</div>
+                <div class="name">Admin: J. Mgogti</div>
+                <div class="desc">Strong Room 01 - Access Grant</div>
+              </li>
+              <li>
+                <div class="time">03:55:12</div>
+                <div class="name">Maintenance: R. Chambo</div>
+                <div class="desc">Electrical Room - Key Card</div>
+              </li>
+              <li class="alert">
+                <div class="time">03:42:00</div>
+                <div class="name">Denied: Unknown ID</div>
+                <div class="desc">Pharmacy Storage - Card Fail</div>
+              </li>
+            </ul>
+          </aside>
+        </div>
+
+        <div class="security-bottom">
+          <div class="sec-box">
+            <div class="sec-kicker orange"><i class="bi bi-lock"></i> Strong Room Monitoring</div>
+            <div class="sec-title">Vault 01 Status</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+              <div class="sec-sub">Seismic & Intrusion Sensors Armed</div>
+              <div class="lock-pill">LOCKED</div>
+            </div>
+          </div>
+
+          <div class="sec-box">
+            <div class="sec-kicker blue"><i class="bi bi-fingerprint"></i> High-Sec Biometrics</div>
+            <div class="sec-title">Main Pharmacy</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+              <div class="sec-sub">Dual-factor auth required</div>
+              <div class="finger"><i class="bi bi-fingerprint"></i></div>
+            </div>
+          </div>
+
+          <div class="sec-box">
+            <div class="sec-kicker">Daily Entries Trend</div>
+            <div class="mini-bars">
+              <span style="height:40%"></span>
+              <span style="height:58%"></span>
+              <span style="height:74%"></span>
+              <span style="height:32%"></span>
+              <span style="height:82%"></span>
+              <span style="height:52%"></span>
+            </div>
+          </div>
+        </div>
+      </article>
+      <article class="view" id="view-energy">
+        <div class="g2">
+          <div class="panel">
+            <h2><i class="bi bi-bar-chart-line metric-icon"></i>System Power & Energy Matrix</h2>
+            <div class="meta">Real-time load, daily use, and optimization potential by integrated subsystem</div>
+            <table class="table">
+              <thead>
+                <tr><th>System</th><th>Load (kW)</th><th>Energy (kWh/day)</th><th>Potential</th><th>Action</th></tr>
+              </thead>
+              <tbody id="energyMatrixBody"></tbody>
+            </table>
+          </div>
+
+          <div class="panel">
+            <h2><i class="bi bi-cash-coin metric-icon"></i>Energy Budget Control</h2>
+            <div class="field">
+              <label for="currencySelect">Currency</label>
+              <select id="currencySelect">
+                <option value="USD">USD</option>
+                <option value="TZS">TZS</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="tariffInput">Tariff (per kWh)</label>
+              <input id="tariffInput" type="number" min="0" step="0.01" value="0.18" />
+            </div>
+            <div class="spend-big" id="budgetSpend">$0</div>
+            <div class="delta" id="budgetHint">Forecast monthly spend from live subsystem usage.</div>
+            <ul class="list">
+              <li><span><i class="bi bi-graph-up-arrow metric-icon"></i>Projected Savings</span><span id="projectedSavings">+0%</span></li>
+              <li><span><i class="bi bi-lightning-charge metric-icon"></i>Peak Control</span><span id="peakMode">Active</span></li>
+              <li><span><i class="bi bi-calendar-check metric-icon"></i>Budget Status</span><span id="budgetStatus" class="state ok">On Track</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="flow-grid">
+          <div class="panel">
+            <h2><i class="bi bi-bezier2 metric-icon"></i>Energy Flow Diagram</h2>
+            <div class="meta">From source to critical loads with live subsystem allocation.</div>
+            <div class="flow-diagram" id="energyFlowDiagram">
+              <div class="flow-stage">
+                <h4>Source</h4>
+                <div class="flow-item"><span><i class="bi bi-lightning-charge metric-icon"></i>Grid Feed</span><strong id="flowGridKw">0 kW</strong></div>
+                <div class="flow-item"><span><i class="bi bi-fuel-pump metric-icon"></i>Standby Generator</span><strong id="flowGenKw">0 kW</strong></div>
+                <div class="flow-item"><span><i class="bi bi-battery-charging metric-icon"></i>UPS Buffer</span><strong id="flowUpsKw">0 kW</strong></div>
+                <div class="source-mode">
+                  <span id="flowSourceModeText">Grid Primary, Generator Standby</span>
+                  <span id="flowSourceBadge" class="source-badge grid">NORMAL</span>
+                </div>
+              </div>
+              <div class="flow-stage">
+                <h4>Distribution</h4>
+                <div class="flow-item"><span><i class="bi bi-diagram-3 metric-icon"></i>ATS / Switchgear</span><strong id="flowAtsKw">0 kW</strong></div>
+                <div class="flow-item"><span><i class="bi bi-plug metric-icon"></i>LV Panel Bus</span><strong id="flowLvKw">0 kW</strong></div>
+                <div class="flow-item"><span><i class="bi bi-graph-up-arrow metric-icon"></i>Losses</span><strong id="flowLossKw">0 kW</strong></div>
+              </div>
+              <div class="flow-stage">
+                <h4>Loads</h4>
+                <div class="flow-item active"><span><i class="bi bi-fan metric-icon"></i>HVAC</span><strong id="flowHvacKw">0 kW</strong></div>
+                <div class="flow-item active"><span><i class="bi bi-lightbulb metric-icon"></i>Lighting</span><strong id="flowLightKw">0 kW</strong></div>
+                <div class="flow-item active"><span><i class="bi bi-cpu metric-icon"></i>Medical / IT</span><strong id="flowMedicalKw">0 kW</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h2><i class="bi bi-activity metric-icon"></i>Energy Trend (24h)</h2>
+            <div class="meta">Interactive line chart, click points for hourly detail.</div>
+            <div class="trend-wrap">
+              <h4 id="trendTitle">Total Hospital Load Trend</h4>
+              <svg id="energyTrendSvg" viewBox="0 0 520 180" preserveAspectRatio="none" aria-label="Energy trend chart"></svg>
+              <div class="trend-info">
+                <span id="trendPointLabel">Point: --</span>
+                <span id="trendPointValue">Load: --</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="g2">
+          <div class="panel">
+            <h2><i class="bi bi-sliders metric-icon"></i>Optimization Control Center</h2>
+            <div class="control-grid">
+              <div class="control-box">
+                <h4>HVAC Controls</h4>
+                <div class="field">
+                  <label for="acSetpoint"><i class="bi bi-thermometer-half metric-icon"></i>AC Setpoint (Indoor)</label>
+                  <input id="acSetpoint" type="range" min="18" max="26" step="0.5" value="21" />
+                  <div id="acSetpointVal">21.0°C</div>
+                </div>
+                <div class="field">
+                  <label for="outdoorMode"><i class="bi bi-wind metric-icon"></i>Outdoor Ventilation</label>
+                  <select id="outdoorMode">
+                    <option value="balanced">Balanced</option>
+                    <option value="eco">Eco</option>
+                    <option value="boost">Boost</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="control-box">
+                <h4>Lighting Controls</h4>
+                <div class="field">
+                  <label for="indoorLight"><i class="bi bi-lightbulb metric-icon"></i>Indoor Lighting Level</label>
+                  <input id="indoorLight" type="range" min="30" max="100" value="78" />
+                  <div id="indoorLightVal">78%</div>
+                </div>
+                <div class="field">
+                  <label for="outdoorLight"><i class="bi bi-brightness-high metric-icon"></i>Outdoor Lighting Level</label>
+                  <input id="outdoorLight" type="range" min="20" max="100" value="62" />
+                  <div id="outdoorLightVal">62%</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="control-grid">
+              <div class="control-box">
+                <h4>Zone Scheduling / Closure</h4>
+                <div class="checks">
+                  <label><input type="checkbox" id="zoneAdminClose" /> Close Admin Block after 19:00</label>
+                  <label><input type="checkbox" id="zoneWardEco" checked /> Ward wings in Eco mode</label>
+                  <label><input type="checkbox" id="zoneOutdoorDim" checked /> Outdoor lights dim after midnight</label>
+                  <label><input type="checkbox" id="simulateGridFailure" /> Simulate grid failure (emergency source)</label>
+                </div>
+              </div>
+              <div class="control-box">
+                <h4>Optimization Score</h4>
+                <div class="spend-big" id="optScore">74%</div>
+                <div class="delta">Higher score means lower waste and better comfort compliance.</div>
+                <div class="chips-inline">
+                  <span class="chip-mini">AC Optimization</span>
+                  <span class="chip-mini">Indoor Lighting</span>
+                  <span class="chip-mini">Outdoor Lighting</span>
+                  <span class="chip-mini">Load Shifting</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h2><i class="bi bi-diagram-3 metric-icon"></i>Component Layout & Health</h2>
+            <div class="meta">Component-level map for check and field verification</div>
+            <div class="layout-map">
+              <div class="layout-node ok">Chiller Plant A</div>
+              <div class="layout-node ok">AHU Block 1</div>
+              <div class="layout-node warn">CRAC-02</div>
+              <div class="layout-node ok">UPS-A01</div>
+              <div class="layout-node ok">Lighting Ctrl L1</div>
+              <div class="layout-node ok">Lighting Ctrl L2</div>
+              <div class="layout-node bad">Leak Sensor R2</div>
+              <div class="layout-node ok">Power Meter LV-3</div>
+            </div>
+            <div class="report-actions">
+              <button class="btn" id="btnCheckLayout"><i class="bi bi-search"></i> Check Components</button>
+              <button class="btn" id="btnOpenMaintenance"><i class="bi bi-tools"></i> Maintenance Queue</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="g3">
+          <div class="panel">
+            <h2><i class="bi bi-file-earmark-text metric-icon"></i>Reports Integration</h2>
+            <div class="meta">Generate and export operational and energy reports</div>
+            <div class="report-actions">
+              <button class="btn" id="btnDailyReport">Daily Energy Report</button>
+              <button class="btn" id="btnWeeklyReport">Weekly Optimization Report</button>
+              <button class="btn" id="btnExportCsv">Export CSV</button>
+            </div>
+            <ul class="list">
+              <li><span>Last generated</span><span id="lastReportAt">--</span></li>
+              <li><span>Delivery</span><span>Email + Archive</span></li>
+            </ul>
+          </div>
+
+          <div class="panel">
+            <h2><i class="bi bi-gear metric-icon"></i>System Configuration</h2>
+            <div class="checks">
+              <label><input type="checkbox" id="cfgPredictive" checked /> Predictive maintenance alerts</label>
+              <label><input type="checkbox" id="cfgAutoDispatch" checked /> Auto dispatch for critical alarms</label>
+              <label><input type="checkbox" id="cfgComfortBias" /> Comfort-priority mode</label>
+            </div>
+            <div class="report-actions">
+              <button class="btn" id="btnSaveConfig">Save Configuration</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h2><i class="bi bi-lightning-charge-fill metric-icon"></i>Energy Consumption by Subsystem</h2>
+            <div class="bars" id="energyBars">
+              <div class="bar" style="background:#4a88ef;height:64%"><span>HVAC</span></div>
+              <div class="bar" style="background:#22b3cd;height:93%"><span>Medical Eq</span></div>
+              <div class="bar" style="background:#2ac08a;height:38%"><span>Lighting</span></div>
+              <div class="bar" style="background:#f7a814;height:26%"><span>Admin</span></div>
+              <div class="bar" style="background:#f24852;height:44%"><span>Servers</span></div>
+              <div class="bar" style="background:#7f8ea8;height:18%"><span>Other</span></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="view" id="view-coverage">
+        <div class="panel">
+          <h2>Integrated Hospital Systems Coverage</h2>
+          <table class="table">
+            <thead><tr><th>System</th><th>Monitoring</th><th>Control</th><th>Status</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td>HVAC & Air Handling</td><td>Yes</td><td>Yes</td><td><span class="state ok">Integrated</span></td><td>Chillers, AHUs, VAVs and OR pressure balance</td></tr>
+              <tr><td>Hydro-sanitary & Water</td><td>Yes</td><td>Yes</td><td><span class="state ok">Integrated</span></td><td>Pumps, tanks, leakage sensors and quality points</td></tr>
+              <tr><td>Electrical Generation & Distribution</td><td>Yes</td><td>Yes</td><td><span class="state ok">Integrated</span></td><td>Generators, UPS, LV panels and ATS logic</td></tr>
+              <tr><td>Lighting Systems</td><td>Yes</td><td>Yes</td><td><span class="state ok">Integrated</span></td><td>Schedules, occupancy and daylight controls</td></tr>
+              <tr><td>Fire Detection & Suppression</td><td>Yes</td><td>Supervisory</td><td><span class="state ok">Integrated</span></td><td>Alarm/fault/event logs with response workflows</td></tr>
+              <tr><td>Physical Security & Access</td><td>Yes</td><td>Policy</td><td><span class="state ok">Integrated</span></td><td>CCTV health, access logs, intrusion analytics</td></tr>
+              <tr><td>Communication Systems</td><td>Yes</td><td>No</td><td><span class="state warn">Monitored</span></td><td>Backbone and critical endpoint availability</td></tr>
+              <tr><td>Elevators, Lifts, Escalators</td><td>Yes</td><td>Dispatch</td><td><span class="state ok">Integrated</span></td><td>Status, faults, rescue mode hooks</td></tr>
+              <tr><td>Blinds, Awnings, Shading</td><td>Yes</td><td>Yes</td><td><span class="state ok">Integrated</span></td><td>Solar and daylight-response automation</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="view" id="view-alerts">
+        <div class="panel">
+          <h2>Active Alerts Console</h2>
+          <table class="table">
+            <thead><tr><th>Time</th><th>Severity</th><th>Domain</th><th>Description</th><th>Owner</th><th>Action</th></tr></thead>
+            <tbody id="alertsTable"></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const viewMeta = {
+      dashboard: "System Overview",
+      critical: "Critical Infrastructure Monitoring",
+      security: "Security & Access Control",
+      energy: "Smart Building & Energy Optimization",
+      coverage: "Integrated Systems Coverage",
+      alerts: "Alerts Console"
+    };
+
+    const nav = [...document.querySelectorAll('.nav a[data-view]')];
+    const views = [...document.querySelectorAll('.view')];
+    const title = document.getElementById('viewTitle');
+
+    function setView(id) {
+      nav.forEach(a => a.classList.toggle('active', a.dataset.view === id));
+      views.forEach(v => v.classList.toggle('active', v.id === `view-${id}`));
+      title.textContent = viewMeta[id] || viewMeta.dashboard;
+      document.body.classList.add('security-mode');
+      location.hash = id;
+    }
+
+    nav.forEach(a => a.addEventListener('click', (e) => { e.preventDefault(); setView(a.dataset.view); }));
+    const h = location.hash.replace('#', '');
+    if (viewMeta[h]) setView(h);
+
+    const dateNow = document.getElementById('dateNow');
+    const clockNow = document.getElementById('clockNow');
+    function tickClock() {
+      const n = new Date();
+      dateNow.textContent = n.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+      clockNow.textContent = n.toLocaleTimeString();
+    }
+    tickClock();
+    setInterval(tickClock, 1000);
+
+    const t = { load: 482.7, o2: 14.2, it: 99.9, gen: 68, fuel: 84, lv: 142, crac: 92, ch: 6.8, dp: 0.12, flow: 97, smoke: 99.4, temp: 19.2, ll: 428 };
+
+    const E = {
+      topPower, topO2, topIT, kpiLoad, kpiTemp, kpiFuel, kpiO2, genLoad, genLoadBar,
+      fuelValue, fuelBar, lvDemand, cracAvail, cracBar, chillerTemp, ahuDp, orFlow, smokeHealth
+    };
+
+    const energySystems = [
+      { key: 'hvac', name: 'HVAC & Air Handling', kw: 182, kwh: 1680, potential: 12, action: 'Raise setpoint +0.5°C' },
+      { key: 'medical', name: 'Medical Equipment', kw: 145, kwh: 1320, potential: 4, action: 'Schedule non-critical devices' },
+      { key: 'lighting', name: 'Lighting (Indoor/Outdoor)', kw: 68, kwh: 640, potential: 15, action: 'Dim + occupancy mode' },
+      { key: 'servers', name: 'Server & IT Rooms', kw: 54, kwh: 510, potential: 6, action: 'Containment airflow tuning' },
+      { key: 'water', name: 'Water & Pumps', kw: 41, kwh: 380, potential: 8, action: 'Pump schedule optimization' },
+      { key: 'lift', name: 'Lifts / Vertical Transport', kw: 28, kwh: 260, potential: 5, action: 'Idle mode policy' }
+    ];
+
+    function fmtCurrency(val, curr) {
+      if (curr === 'TZS') return `${Math.round(val).toLocaleString()} TZS`;
+      return `$${val.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+    }
+
+    let energyHistory = [468, 472, 476, 481, 486, 491, 488, 482, 477, 473, 469, 465];
+
+    function renderEnergyFlow(snapshot) {
+      const sumKw = snapshot.reduce((a, s) => a + s.kw, 0);
+      const forcedEmergency = Boolean(document.getElementById('simulateGridFailure')?.checked);
+      const stressed = sumKw > 505 || t.fuel < 72;
+      const emergencyMode = forcedEmergency || stressed;
+
+      const grid = emergencyMode ? 0 : sumKw * 0.9;
+      const gen = emergencyMode ? sumKw * 0.88 : sumKw * 0.05;
+      const ups = emergencyMode ? sumKw * 0.12 : sumKw * 0.05;
+      const ats = sumKw * 0.98;
+      const lv = sumKw * 0.95;
+      const loss = sumKw - lv;
+      const hvac = snapshot.find(s => s.key === 'hvac')?.kw || 0;
+      const lighting = snapshot.find(s => s.key === 'lighting')?.kw || 0;
+      const medical = (snapshot.find(s => s.key === 'medical')?.kw || 0) + (snapshot.find(s => s.key === 'servers')?.kw || 0);
+
+      const set = (id, v) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = `${v.toFixed(1)} kW`;
+      };
+      set('flowGridKw', grid);
+      set('flowGenKw', gen);
+      set('flowUpsKw', ups);
+      set('flowAtsKw', ats);
+      set('flowLvKw', lv);
+      set('flowLossKw', Math.max(0, loss));
+      set('flowHvacKw', hvac);
+      set('flowLightKw', lighting);
+      set('flowMedicalKw', medical);
+
+      const modeText = document.getElementById('flowSourceModeText');
+      const modeBadge = document.getElementById('flowSourceBadge');
+      const atsState = document.getElementById('atsState');
+      if (modeText) {
+        modeText.textContent = emergencyMode ? 'Emergency: Standby Generator Supplying Critical Loads' : 'Grid Primary, Generator Standby';
+      }
+      if (modeBadge) {
+        modeBadge.textContent = emergencyMode ? 'EMERGENCY' : 'NORMAL';
+        modeBadge.className = `source-badge ${emergencyMode ? 'gen' : 'grid'}`;
+      }
+      if (atsState) {
+        atsState.textContent = emergencyMode ? 'Generator Active' : 'Mains Active';
+      }
+    }
+
+    function renderTrendChart() {
+      const svg = document.getElementById('energyTrendSvg');
+      if (!svg) return;
+      const w = 520;
+      const h = 180;
+      const p = 18;
+      const max = Math.max(...energyHistory, 520);
+      const min = Math.min(...energyHistory, 420);
+      const span = Math.max(1, max - min);
+      const xStep = (w - p * 2) / Math.max(1, energyHistory.length - 1);
+      const y = (v) => h - p - ((v - min) / span) * (h - p * 2);
+      const points = energyHistory.map((v, i) => `${(p + i * xStep).toFixed(1)},${y(v).toFixed(1)}`);
+      const area = `M ${p},${h - p} L ${points.join(' L ')} L ${p + (energyHistory.length - 1) * xStep},${h - p} Z`;
+
+      const gridLines = [0, 1, 2, 3, 4].map(i => {
+        const gy = p + ((h - p * 2) / 4) * i;
+        return `<line class="grid" x1="${p}" y1="${gy}" x2="${w - p}" y2="${gy}"></line>`;
+      }).join('');
+
+      const dots = energyHistory.map((v, i) => {
+        const cx = p + i * xStep;
+        const cy = y(v);
+        return `<circle class="dot" data-i="${i}" data-v="${v.toFixed(1)}" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="3.5"></circle>`;
+      }).join('');
+
+      svg.innerHTML = `${gridLines}<path class="area" d="${area}"></path><polyline class="line" points="${points.join(' ')}"></polyline>${dots}`;
+
+      const label = document.getElementById('trendPointLabel');
+      const value = document.getElementById('trendPointValue');
+      svg.querySelectorAll('.dot').forEach((d) => {
+        d.addEventListener('mouseenter', () => {
+          const i = Number(d.getAttribute('data-i'));
+          const v = d.getAttribute('data-v');
+          if (label) label.textContent = `Hour Slot: ${i + 1}`;
+          if (value) value.textContent = `Load: ${v} kW`;
+        });
+      });
+    }
+
+    function renderEnergyMatrixAndBudget() {
+      const body = document.getElementById('energyMatrixBody');
+      if (!body) return;
+
+      const ac = Number(document.getElementById('acSetpoint')?.value || 21);
+      const indoor = Number(document.getElementById('indoorLight')?.value || 78);
+      const outdoor = Number(document.getElementById('outdoorLight')?.value || 62);
+      const wardEco = Boolean(document.getElementById('zoneWardEco')?.checked);
+      const adminClose = Boolean(document.getElementById('zoneAdminClose')?.checked);
+      const outdoorDim = Boolean(document.getElementById('zoneOutdoorDim')?.checked);
+      const vent = document.getElementById('outdoorMode')?.value || 'balanced';
+
+      const hvacFactor = 1 - ((ac - 21) * 0.035) + (vent === 'boost' ? 0.06 : vent === 'eco' ? -0.08 : 0);
+      const lightFactor = ((indoor / 100) * 0.72 + (outdoor / 100) * 0.28) * (outdoorDim ? 0.9 : 1);
+      const adminFactor = adminClose ? 0.88 : 1;
+      const ecoFactor = wardEco ? 0.94 : 1;
+
+      let totalKwh = 0;
+
+      const snapshot = energySystems.map((s) => {
+        let kwFactor = 1;
+        if (s.key === 'hvac') kwFactor = hvacFactor * ecoFactor;
+        if (s.key === 'lighting') kwFactor = lightFactor * adminFactor;
+        if (s.key === 'medical') kwFactor = ecoFactor;
+
+        const kw = clamp(nudge(s.kw * kwFactor, 1.2), s.kw * 0.7, s.kw * 1.25);
+        const kwh = clamp(nudge(s.kwh * kwFactor, 8), s.kwh * 0.7, s.kwh * 1.25);
+        totalKwh += kwh;
+
+        const potential = Math.max(2, Math.round(s.potential + (adminClose ? 2 : 0) + (wardEco ? 1 : 0) + (s.key === 'lighting' && outdoorDim ? 3 : 0)));
+        return { ...s, kw, kwh, potential };
+      });
+
+      const rows = snapshot.map((s) =>
+        `<tr><td>${s.name}</td><td>${s.kw.toFixed(1)}</td><td>${Math.round(s.kwh)}</td><td><span class="state ok">+${s.potential}%</span></td><td>${s.action}</td></tr>`
+      ).join('');
+
+      body.innerHTML = rows;
+
+      const currency = document.getElementById('currencySelect')?.value || 'USD';
+      const tariffRaw = Number(document.getElementById('tariffInput')?.value || 0.18);
+      const tariff = currency === 'TZS' ? tariffRaw : tariffRaw;
+      const monthFactor = 30;
+      const usdMonthly = totalKwh * monthFactor * (currency === 'TZS' ? (tariff / 2600) : tariff);
+      const displayMonthly = currency === 'TZS' ? usdMonthly * 2600 : usdMonthly;
+
+      const spendEl = document.getElementById('budgetSpend');
+      const hintEl = document.getElementById('budgetHint');
+      const projectedEl = document.getElementById('projectedSavings');
+      const peakModeEl = document.getElementById('peakMode');
+      const budgetStatusEl = document.getElementById('budgetStatus');
+      const optScoreEl = document.getElementById('optScore');
+      const acValEl = document.getElementById('acSetpointVal');
+      const inValEl = document.getElementById('indoorLightVal');
+      const outValEl = document.getElementById('outdoorLightVal');
+
+      const projected = Math.round((wardEco ? 8 : 0) + (adminClose ? 7 : 0) + (outdoorDim ? 6 : 0) + Math.max(0, Math.round((ac - 21) * 3)));
+      const score = Math.max(40, Math.min(96, 60 + projected));
+
+      if (spendEl) spendEl.textContent = fmtCurrency(displayMonthly, currency);
+      if (hintEl) hintEl.textContent = `Estimated monthly spend at ${fmtCurrency(tariff, currency)}/kWh based on live subsystem usage.`;
+      if (projectedEl) projectedEl.textContent = `+${projected}%`;
+      if (peakModeEl) peakModeEl.textContent = vent === 'boost' ? 'Boosted' : vent === 'eco' ? 'Eco' : 'Active';
+      if (budgetStatusEl) {
+        budgetStatusEl.textContent = displayMonthly < (currency === 'TZS' ? 220000000 : 85000) ? 'On Track' : 'Watch';
+        budgetStatusEl.className = `state ${displayMonthly < (currency === 'TZS' ? 220000000 : 85000) ? 'ok' : 'warn'}`;
+      }
+      if (optScoreEl) optScoreEl.textContent = `${score}%`;
+      if (acValEl) acValEl.textContent = `${ac.toFixed(1)}°C`;
+      if (inValEl) inValEl.textContent = `${indoor}%`;
+      if (outValEl) outValEl.textContent = `${outdoor}%`;
+
+      renderEnergyFlow(snapshot);
+
+      const bars = [...document.querySelectorAll('#energyBars .bar')];
+      const barMap = ['hvac', 'medical', 'lighting', 'water', 'servers', 'lift'];
+      const maxKwh = Math.max(...snapshot.map(s => s.kwh), 1);
+      bars.forEach((b, i) => {
+        const key = barMap[i];
+        const item = snapshot.find(s => s.key === key);
+        if (!item) return;
+        const hPct = clamp((item.kwh / maxKwh) * 95, 14, 95);
+        b.style.height = `${hPct}%`;
+      });
+
+      const totalKw = snapshot.reduce((a, s) => a + s.kw, 0);
+      energyHistory = [...energyHistory.slice(-11), totalKw];
+      renderTrendChart();
+    }
+
+    const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+    const nudge = (v, a) => v + ((Math.random() * 2 - 1) * a);
+
+    function paint() {
+      t.load = clamp(nudge(t.load, 1.8), 455, 510);
+      t.o2 = clamp(nudge(t.o2, 0.05), 13.8, 14.6);
+      t.it = clamp(nudge(t.it, 0.08), 99.2, 100);
+      t.gen = clamp(nudge(t.gen, 1.4), 52, 89);
+      t.fuel = clamp(nudge(t.fuel, 0.25), 70, 96);
+      t.lv = clamp(nudge(t.lv, 1.5), 125, 178);
+      t.crac = clamp(nudge(t.crac, 1), 86, 98);
+      t.ch = clamp(nudge(t.ch, 0.06), 6.2, 7.2);
+      t.dp = clamp(nudge(t.dp, 0.01), 0.08, 0.20);
+      t.flow = clamp(nudge(t.flow, 0.5), 94, 100);
+      t.smoke = clamp(nudge(t.smoke, 0.06), 98.7, 100);
+      t.temp = clamp(nudge(t.temp, 0.05), 18.9, 19.9);
+      t.ll = clamp(nudge(t.ll, 2), 398, 448);
+
+      E.topPower.textContent = `${t.load.toFixed(1)} kW`;
+      E.topO2.textContent = `${t.o2.toFixed(1)} Bar`;
+      E.topIT.textContent = `${t.it.toFixed(1)}%`;
+      E.kpiLoad.textContent = `${Math.round(t.ll)} kW`;
+      E.kpiTemp.textContent = `${t.temp.toFixed(1)}°C`;
+      E.kpiFuel.textContent = `${Math.round(t.fuel)}%`;
+      E.kpiO2.textContent = `${t.o2.toFixed(1)} Bar`;
+      E.genLoad.textContent = `${Math.round(t.gen)}%`;
+      E.genLoadBar.style.width = `${t.gen}%`;
+      E.fuelValue.textContent = `${Math.round(t.fuel)}%`;
+      E.fuelBar.style.width = `${t.fuel}%`;
+      E.lvDemand.textContent = `${Math.round(t.lv)} kW`;
+      E.cracAvail.textContent = `${Math.round(t.crac)}%`;
+      E.cracBar.style.width = `${t.crac}%`;
+      E.chillerTemp.textContent = `${t.ch.toFixed(1)}°C`;
+      E.ahuDp.textContent = `${t.dp.toFixed(2)} Pa`;
+      E.orFlow.textContent = `${Math.round(t.flow)}%`;
+      E.smokeHealth.textContent = `${t.smoke.toFixed(1)}%`;
+      renderEnergyMatrixAndBudget();
+    }
+
+    paint();
+    setInterval(paint, 2200);
+
+    const toast = document.getElementById('toast');
+    function note(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(note.t);
+      note.t = setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    ackBtn.addEventListener('click', () => note('Alarm acknowledged. Incident ticket #CCBRT-2187 updated.'));
+    dispatchBtn.addEventListener('click', () => note('Emergency response team dispatched to Server Room R2. ETA 2 min.'));
+
+    document.querySelectorAll('#floorGrid .zone').forEach(z => z.addEventListener('click', () => {
+      bannerText.textContent = `Live focus: ${z.dataset.zone} telemetry and event detail opened.`;
+      note(`Zone ${z.dataset.zone} selected for drill-down.`);
+    }));
+
+    document.querySelectorAll('#camChips .chip').forEach(ch => ch.addEventListener('click', () => {
+      document.querySelectorAll('#camChips .chip').forEach(c => c.classList.remove('active'));
+      ch.classList.add('active');
+      const main = document.getElementById('securityMainImage');
+      const tagTitle = document.getElementById('cameraTagTitle');
+      if (main && ch.dataset.src) {
+        main.classList.add('switching');
+        const nextSrc = ch.dataset.src;
+        const loader = new Image();
+        loader.onload = () => {
+          main.src = nextSrc;
+          requestAnimationFrame(() => main.classList.remove('switching'));
+        };
+        loader.src = nextSrc;
+      }
+      if (tagTitle) tagTitle.textContent = ch.dataset.label || 'CAM FEED';
+      note(`Camera switched to ${ch.dataset.label || ch.textContent}.`);
+    }));
+
+    ['currencySelect', 'tariffInput', 'acSetpoint', 'outdoorMode', 'indoorLight', 'outdoorLight', 'zoneAdminClose', 'zoneWardEco', 'zoneOutdoorDim', 'simulateGridFailure']
+      .forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('input', renderEnergyMatrixAndBudget);
+        el.addEventListener('change', renderEnergyMatrixAndBudget);
+      });
+
+    const currencySelect = document.getElementById('currencySelect');
+    const tariffInput = document.getElementById('tariffInput');
+    if (currencySelect && tariffInput) {
+      currencySelect.addEventListener('change', () => {
+        tariffInput.value = currencySelect.value === 'TZS' ? '470' : '0.18';
+        renderEnergyMatrixAndBudget();
+      });
+    }
+
+    const reportButtons = [
+      ['btnDailyReport', 'Daily energy report queued.'],
+      ['btnWeeklyReport', 'Weekly optimization report queued.'],
+      ['btnExportCsv', 'CSV export started.'],
+      ['btnSaveConfig', 'Configuration saved successfully.'],
+      ['btnCheckLayout', 'Component verification checklist opened.'],
+      ['btnOpenMaintenance', 'Maintenance queue opened.']
+    ];
+    reportButtons.forEach(([id, msg]) => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('click', () => {
+        if (id.includes('Report') || id === 'btnExportCsv') {
+          const stamp = document.getElementById('lastReportAt');
+          if (stamp) stamp.textContent = new Date().toLocaleString();
+        }
+        note(msg);
+      });
+    });
+
+    const alerts = [
+      { t: '05:11:03', sev: 'Critical', domain: 'Server Room', d: 'Water leakage detected, Rack Row 2', owner: 'ERT Team A' },
+      { t: '05:08:47', sev: 'High', domain: 'UPS', d: 'UPS-B04 battery string #2 low capacity', owner: 'Electrical' },
+      { t: '05:05:15', sev: 'High', domain: 'Access', d: 'Pharmacy door held open > 8 min', owner: 'Security' },
+      { t: '04:59:33', sev: 'Medium', domain: 'HVAC', d: 'CRAC-02 compressor pressure near threshold', owner: 'HVAC Tech' },
+      { t: '04:53:10', sev: 'Medium', domain: 'Lighting', d: 'Daylight sensor mismatch in OPD block', owner: 'Controls' },
+      { t: '04:42:04', sev: 'Low', domain: 'Power Quality', d: 'Transient harmonic spike at LV Panel 3', owner: 'Electrical' }
+    ];
+
+    const tBody = document.getElementById('alertsTable');
+    const alertBadge = document.getElementById('alertBadge');
+
+    function sevBadge(sev) {
+      return `<span class="state ${sev === 'Critical' ? 'bad' : sev === 'High' ? 'warn' : 'ok'}">${sev}</span>`;
+    }
+
+    function renderAlerts() {
+      tBody.innerHTML = alerts.map((a, i) => `
+        <tr>
+          <td>${a.t}</td>
+          <td>${sevBadge(a.sev)}</td>
+          <td>${a.domain}</td>
+          <td>${a.d}</td>
+          <td>${a.owner}</td>
+          <td><button class="btn ${i < 2 ? 'danger' : ''}" data-i="${i}">${i < 2 ? 'Escalate' : 'Acknowledge'}</button></td>
+        </tr>
+      `).join('');
+
+      alertBadge.textContent = String(alerts.filter(a => a.sev === 'Critical' || a.sev === 'High').length);
+
+      tBody.querySelectorAll('button[data-i]').forEach(b => {
+        b.addEventListener('click', () => note(`${alerts[Number(b.dataset.i)].sev} alert handled: ${alerts[Number(b.dataset.i)].domain}`));
+      });
+    }
+
+    renderAlerts();
+
+  </script>
+</body>
+</html>
+
