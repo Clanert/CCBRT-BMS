@@ -350,11 +350,83 @@
     }
 
     @media (max-width: 900px) {
-      body { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
-      .sidebar { border-right: 0; border-bottom: 1px solid var(--line); }
-      .nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .profile { display: none; }
-      .title { font-size: 21px; }
+      body { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+      .sidebar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 72px;
+        z-index: 40;
+        border-right: 0;
+        border-top: 1px solid var(--line);
+        border-bottom: 0;
+      }
+      .brand, .profile { display: none; }
+      .nav {
+        height: 100%;
+        padding: 6px 8px;
+        gap: 6px;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        align-items: stretch;
+      }
+      .nav a {
+        position: relative;
+        justify-content: center;
+        padding: 8px 4px;
+        font-size: 0;
+        min-height: 0;
+      }
+      .nav-left { gap: 0; }
+      .nav i { font-size: 20px; width: auto; }
+      .nav a .badge {
+        position: absolute;
+        right: 4px;
+        top: 2px;
+        min-width: 18px;
+        padding: 1px 5px;
+      }
+      .app { min-height: 100vh; }
+      .topbar {
+        min-height: auto;
+        padding: 10px 12px;
+        display: grid;
+        gap: 8px;
+      }
+      .title-wrap {
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+      }
+      .title {
+        font-size: 18px;
+        line-height: 1.2;
+      }
+      .pill {
+        padding: 4px 8px;
+        font-size: 10px;
+      }
+      .tm {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
+      }
+      .tm span {
+        border: 1px solid #24467c;
+        background: rgba(10, 28, 57, 0.78);
+        border-radius: 8px;
+        padding: 6px 8px;
+        font-size: 12px;
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      #dateNow { grid-column: 1 / -1; }
+      #clockNow { display: none; }
+      .content { padding-bottom: 90px; }
       .floor { grid-template-columns: repeat(3, 1fr); }
     }
   </style>
